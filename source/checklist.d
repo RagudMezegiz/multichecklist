@@ -23,7 +23,7 @@ class ChecklistData
         "lists (id INTEGER PRIMARY KEY, name TEXT UNIQUE, boxes INTEGER)";
     private enum insertLists = "INSERT INTO lists (name, boxes) VALUES (:name, :boxes)";
     private enum selectLists = "SELECT * FROM lists";
-    private enum updateListBoxes = "UPDATE lists SET boxes = :boxes WHERE id == :id";
+    private enum updateLists = "UPDATE lists SET name = :name, boxes = :boxes WHERE id == :id";
 
     private enum createListData = "CREATE TABLE IF NOT EXISTS " ~
         "list_data (id INTEGER PRIMARY KEY, list_id INTEGER, flags INTEGER, data TEXT, " ~
@@ -86,6 +86,20 @@ class ChecklistData
         const int row_id = db.execute(lastRowInserted).oneValue!int;
         Log.d("Inserted checklist row ", row_id);
         return new Checklist(row_id, name, nBoxes);
+    }
+
+    /++
+    Update a list.
+
+    Params:
+        list_id = list identifier
+        name = list name
+        boxes = number of boxes
+    +/
+    public static void updateList(int list_id, dstring name, int boxes)
+    {
+        db.execute(updateLists, name, boxes, list_id);
+        Log.d("Updated checklist ", list_id);
     }
 
     /++
@@ -322,17 +336,6 @@ class Checklist
     {
         return _boxes;
     }
-    
-    /++
-    Number of boxes per row
-
-    Params:
-        nBoxes = number of boxes
-    +/
-    @property void boxes(int nBoxes)
-    {
-        _boxes = nBoxes;
-    }
 
     /++
     Rows
@@ -342,6 +345,20 @@ class Checklist
     @property CheckRow[] rows()
     {
         return _rows;
+    }
+
+    /++
+    Update the name and number of boxes per row.
+
+    Params:
+        name = list name
+        boxes = number of boxes
+    +/
+    public void update(dstring name, int boxes)
+    {
+        _name = name;
+        _boxes = boxes;
+        ChecklistData.updateList(_id, _name, _boxes);
     }
 
     /++
@@ -432,6 +449,28 @@ class CheckListTab : TableLayout
     @property dstring name()
     {
         return _list.name;
+    }
+
+    /++
+    Number of checkboxes per row
+
+    Returns: number of boxes
+    +/
+    @property int boxes()
+    {
+        return _list.boxes;
+    }
+
+    /++
+    Update the name and number of boxes.
+
+    Params:
+        name = new list name
+        boxes = number of boxes
+    +/
+    public void update(dstring name, int boxes)
+    {
+        _list.update(name, boxes);
     }
 
     /++

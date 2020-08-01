@@ -106,8 +106,7 @@ class MultiCheckListFrame : AppFrame
                 return true;
 
             case AppActions.ListEdit:
-                // TODO Edit selected list
-                statusLine().setStatusText("List->Edit List menu handler not implemented");
+                editList();
                 return true;
 
             case AppActions.ListDelete:
@@ -239,6 +238,30 @@ class MultiCheckListFrame : AppFrame
                 CheckListTab clt = _listTabs.childById!CheckListTab(_listTabs.selectedTabId);
                 clt.createRow(dlg.data);
                 statusLine().setStatusText("Created new list item " ~ dlg.data);
+                enableMenuActions();
+                invalidate();
+            }
+        };
+        dlg.show();
+    }
+
+    /// Edit list
+    private void editList()
+    {
+        string selected = _listTabs.selectedTabId;
+        Log.d("Edit tab ID ", selected);
+        CheckListTab clt = _listTabs.childById!CheckListTab(selected);
+
+        CreateEditListDialog dlg = new CreateEditListDialog(DialogType.EDIT, window);
+        dlg.name(clt.name);
+        dlg.boxes(clt.boxes);
+        dlg.dialogResult = delegate(Dialog d, const Action result)
+        {
+            if (result.id == ACTION_OK.id)
+            {
+                clt.update(dlg.name, dlg.boxes);
+                _listTabs.renameTab(selected, dlg.name);
+                statusLine().setStatusText("Updated checklist " ~ dlg.name);
                 enableMenuActions();
                 invalidate();
             }
