@@ -9,7 +9,13 @@ import dlangui;
 import dlangui.dialogs.dialog;
 
 /// Program version information
-enum versionInfo = "Multi-Check-List version 0.1\nCopyright (C) 2020 David Terhune\ndave.terhune@gmail.com"d;
+enum versionInfo = "
+         Multi-Check-List version 0.1
+https://github.com/RagudMezegiz/multichecklist
+
+       Copyright (C) 2020 David Terhune
+           (dave.terhune@gmail.com)
+"d;
 
 mixin APP_ENTRY_POINT;
 
