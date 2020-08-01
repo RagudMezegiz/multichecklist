@@ -19,6 +19,9 @@
 docs.json
 __dummy.html
 docs/
+bin/
+dub.selections.json
+*.settings
 
 # Code coverage
 *.lst

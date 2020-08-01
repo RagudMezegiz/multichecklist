@@ -1,0 +1,10 @@
+{
+	"dependencies": {
+		"d2sqlite3": "~>0.18.3",
+		"dlangui": "~>0.9.186"
+	},
+	"name": "multichecklist",
+	"targetName": "multichecklist",
+	"targetPath": "bin",
+	"targetType": "executable"
+}
