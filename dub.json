@@ -11,5 +11,7 @@
 	"license": "BSL-1.0",
 	"targetName": "multichecklist",
 	"targetPath": "bin",
-	"targetType": "executable"
+	"targetType": "executable",
+    "lflags-windows": [ "/libpath:lib" ],
+    "postBuildCommands-windows": [ "copy lib\\sqlite3.dll bin" ]
 }
