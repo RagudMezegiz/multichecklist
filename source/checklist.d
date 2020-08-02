@@ -32,6 +32,7 @@ class ChecklistData
     private enum selectListData = "SELECT * FROM list_data WHERE list_id == :id ORDER BY data ASC";
     private enum updateListDataData = "UPDATE list_data SET data = :data WHERE id == :id";
     private enum updateListDataFlags = "UPDATE list_data SET flags = :flags WHERE id == :id";
+    private enum removeListData = "DELETE FROM list_data WHERE id == :id";
 
     // Database connection
     private static Database db;
@@ -143,6 +144,17 @@ class ChecklistData
     {
         db.execute(updateListDataFlags, flags, row_id);
         Log.d("Updated data flags: ", row_id, ", ", flags);
+    }
+
+    /++
+    Remove the list data from the database.
+
+    Params: row_id = row to remove
+    +/
+    public static void removeData(int row_id)
+    {
+        db.execute(removeListData, row_id);
+        Log.d("Removed data: ", row_id);
     }
 
     // Create the initial tables if they're not there.
@@ -278,6 +290,12 @@ class CheckRow
     {
         _flags[index] = false;
         ChecklistData.updateListData(_row, _flags._value);
+    }
+
+    /// Remove this row from the database.
+    public void remove()
+    {
+        ChecklistData.removeData(_row);
     }
 
     /++
@@ -510,7 +528,7 @@ class CheckListTab : TableLayout
         Button ed = new Button(new Action(i.to!int, "Edit"d));
         ed.click = &onEdit;
         addChild(ed);
-        Button del = new Button(new Action(-i.to!int, "Delete"d));
+        Button del = new Button(new Action(-(i.to!int), "Delete"d));
         del.click = &onDelete;
         addChild(del);
     }
@@ -534,7 +552,25 @@ class CheckListTab : TableLayout
 
     bool onDelete(Widget w)
     {
-        // TODO Implement
+        int row = -w.action.id;
+        dstring data = _list.rows[row].text;
+        window.showMessageBox(UIString.fromRaw("Delete "d ~ data ~ "?"d),
+            UIString.fromRaw("This cannot be undone. Are you sure?"d),
+            [ACTION_YES, ACTION_NO], 1, delegate(const Action a)
+            {
+                if (a.id == StandardAction.Yes)
+                {
+                    _list.rows[row].remove;
+                    foreach (i;  0.._list.boxes)
+                    {
+                        childById("check_" ~ row.to!string ~ "_" ~ i.to!string).enabled(false);
+                    }
+                    childById("text_" ~ row.to!string).text("");
+                    childById("button-action" ~ row.to!string).enabled(false);
+                    childById("button-action" ~ (-row).to!string).enabled(false);
+                }
+                return true;
+            });
         return true;
     }
 }

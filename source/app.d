@@ -249,7 +249,6 @@ class MultiCheckListFrame : AppFrame
     private void editList()
     {
         string selected = _listTabs.selectedTabId;
-        Log.d("Edit tab ID ", selected);
         CheckListTab clt = _listTabs.childById!CheckListTab(selected);
 
         CreateEditListDialog dlg = new CreateEditListDialog(DialogType.EDIT, window);
