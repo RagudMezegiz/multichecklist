@@ -4,6 +4,11 @@
 		"dlangui": "~>0.9.186"
 	},
 	"name": "multichecklist",
+	"description": "Checklist application allowing more than one checkbox per row",
+	"homepage": "https://github.com/RagudMezegiz/multichecklist",
+	"authors": [ "David Terhune <dave.terhune@gmail.com" ],
+	"copyright": "Copyright (C) 2020 David Terhune",
+	"license": "BSL-1.0",
 	"targetName": "multichecklist",
 	"targetPath": "bin",
 	"targetType": "executable"
