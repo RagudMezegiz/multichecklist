@@ -110,8 +110,7 @@ class MultiCheckListFrame : AppFrame
                 return true;
 
             case AppActions.ListDelete:
-                // TODO Delete selected list
-                statusLine().setStatusText("List->Delete List menu handler not implemented");
+                deleteList();
                 return true;
 
             case AppActions.ListItemNew:
@@ -266,6 +265,30 @@ class MultiCheckListFrame : AppFrame
             }
         };
         dlg.show();
+    }
+
+    /// Delete list
+    private void deleteList()
+    {
+        CheckListTab clt = _listTabs.childById!CheckListTab(_listTabs.selectedTabId);
+
+        window.showMessageBox(UIString.fromRaw("Delete "d ~ clt.name ~ "?"d),
+            UIString.fromRaw("This cannot be undone. Are you sure?"d),
+            [ACTION_YES, ACTION_NO], 1, delegate(const Action a)
+            {
+                if (a.id == StandardAction.Yes)
+                {
+                    clt.remove();
+                    _listTabs.removeTab(clt.id);
+                    if (_listTabs.tabCount > 0)
+                    {
+                        _listTabs.selectTab(0);
+                    }
+                    enableMenuActions();
+                    invalidate();
+                }
+                return true;
+            });
     }
 }
 

@@ -24,6 +24,7 @@ class ChecklistData
     private enum insertLists = "INSERT INTO lists (name, boxes) VALUES (:name, :boxes)";
     private enum selectLists = "SELECT * FROM lists";
     private enum updateLists = "UPDATE lists SET name = :name, boxes = :boxes WHERE id == :id";
+    private enum removeLists = "DELETE FROM lists where id == :id";
 
     private enum createListData = "CREATE TABLE IF NOT EXISTS " ~
         "list_data (id INTEGER PRIMARY KEY, list_id INTEGER, flags INTEGER, data TEXT, " ~
@@ -33,6 +34,7 @@ class ChecklistData
     private enum updateListDataData = "UPDATE list_data SET data = :data WHERE id == :id";
     private enum updateListDataFlags = "UPDATE list_data SET flags = :flags WHERE id == :id";
     private enum removeListData = "DELETE FROM list_data WHERE id == :id";
+    private enum removeListAllData = "DELETE FROM list_data WHERE list_id == :id";
 
     // Database connection
     private static Database db;
@@ -101,6 +103,19 @@ class ChecklistData
     {
         db.execute(updateLists, name, boxes, list_id);
         Log.d("Updated checklist ", list_id);
+    }
+
+    /++
+    Remove a list.
+
+    Params:
+        list_id = list identifier
+    +/
+    public static void removeList(int list_id)
+    {
+        db.execute(removeLists, list_id);
+        db.execute(removeListAllData, list_id);
+        Log.d("Removed checklist ", list_id);
     }
 
     /++
@@ -379,6 +394,12 @@ class Checklist
         ChecklistData.updateList(_id, _name, _boxes);
     }
 
+    /// Remove this list.
+    public void remove()
+    {
+        ChecklistData.removeList(_id);
+    }
+
     /++
     Add a row to the list.
 
@@ -501,6 +522,14 @@ class CheckListTab : TableLayout
     {
         _list.createRow(text);
         addRowControls(_list.rows.length - 1, _list.rows[$-1]);
+    }
+
+    /++
+    Remove this tab's data.
+    +/
+    public void remove()
+    {
+        _list.remove();
     }
 
     /// Build the table layout
