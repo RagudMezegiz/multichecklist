@@ -8,6 +8,7 @@ import dlangui;
 import dlangui.dialogs.dialog;
 import dlangui.dialogs.msgbox;
 
+import std.array;
 import std.conv;
 
 /// Dialog type enumeration.  Doubles as dialog title prefix.
@@ -121,7 +122,7 @@ class CreateEditListDialog : Dialog
     override void initialize()
     {
         _listName = new EditLine(null, _name);
-        _listName.minWidth(120);
+        _listName.minWidth(150);
         _boxCount = new EditLine(null, _boxes.to!dstring);
         
         TableLayout tl = new TableLayout().colCount(2);
@@ -166,7 +167,7 @@ class CreateEditListItemDialog : Dialog
     }
 
     /++
-    Item test data
+    Item text data
 
     Params: d = data
 
@@ -214,6 +215,73 @@ class CreateEditListItemDialog : Dialog
         hl.addChild(_itemText);
 
         addChild(hl);
+        addChild(createButtonsPanel([ACTION_OK, ACTION_CANCEL], 0, 0));
+    }
+}
+
+/// Dialog for creating multiple list items simultaneously
+class CreateMultipleItemsDialog : Dialog
+{
+    private EditBox _editBox;
+    private dstring[] _items;
+
+    /++
+    Constructor.
+
+    Params:
+        parent = parent window
+    +/
+    public this(Window parent)
+    {
+        super(UIString.fromRaw("Create List Items"d), parent, DialogFlag.Modal,
+            parent.width / 2, parent.height / 2);
+    }
+
+    /++
+    Items.
+
+    Returns: items
+    +/
+    @property dstring[] items()
+    {
+        return _items;
+    }
+
+    override bool closeWithDefaultAction()
+    {
+        return handleAction(ACTION_OK);
+    }
+
+    override bool handleAction(const Action action)
+    {
+        if (action.id == StandardAction.Cancel)
+        {
+            super.handleAction(action);
+            return true;
+        }
+        if (action.id == StandardAction.Ok)
+        {
+            // Validate contents
+            if (_editBox.text.length == 0)
+            {
+                // List name cannot be empty - show popup
+                window.showMessageBox("Error"d, "Item text cannot be empty"d);
+                return true;
+            }
+            _items = _editBox.text.split("\n");
+        }
+        return super.handleAction(action);
+    }
+
+    override void initialize()
+    {
+        _editBox = new EditBox();
+        _editBox.minWidth(150);
+        _editBox.minHeight(100);
+
+        addChild(new TextWidget(null, "List Items (one per line)"d));
+        addChild(_editBox);
+
         addChild(createButtonsPanel([ACTION_OK, ACTION_CANCEL], 0, 0));
     }
 }

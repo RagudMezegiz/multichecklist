@@ -10,7 +10,7 @@ import dlangui.dialogs.dialog;
 
 /// Program version information
 enum versionInfo = "
-        Multi-Check-List version 0.1.1
+        Multi-Check-List version 0.2.0
 https://github.com/RagudMezegiz/multichecklist
 
        Copyright (C) 2020 David Terhune
@@ -60,9 +60,8 @@ enum AppActions : int
     ListNew,
     ListEdit,
     ListDelete,
-    ListItemNew,
-    ListItemEdit,
-    ListItemDelete,
+    ItemNew,
+    ItemList,
     HelpAbout
 }
 
@@ -74,7 +73,8 @@ class MultiCheckListFrame : AppFrame
     private Action ACTION_LIST_NEW = new Action(AppActions.ListNew, "New &List"d);
     private Action ACTION_LIST_EDIT = new Action(AppActions.ListEdit, "Edit List"d);
     private Action ACTION_LIST_DELETE = new Action(AppActions.ListDelete, "Delete List"d);
-    private Action ACTION_LIST_ITEM_NEW = new Action(AppActions.ListItemNew, "New &Item"d);
+    private Action ACTION_ITEM_NEW = new Action(AppActions.ItemNew, "New &Item"d);
+    private Action ACTION_ITEM_LIST = new Action(AppActions.ItemList, "&Multiple New Items"d);
     private Action ACTION_HELP_ABOUT = new Action(AppActions.HelpAbout, "&About"d);
 
     // Checklist tab widget
@@ -113,8 +113,12 @@ class MultiCheckListFrame : AppFrame
                 deleteList();
                 return true;
 
-            case AppActions.ListItemNew:
+            case AppActions.ItemNew:
                 createNewListItem();
+                return true;
+
+            case AppActions.ItemList:
+                createNewItemMultiple();
                 return true;
 
             case AppActions.HelpAbout:
@@ -148,11 +152,14 @@ class MultiCheckListFrame : AppFrame
         listItem.add(ACTION_LIST_NEW);
         listItem.add(ACTION_LIST_EDIT);
         listItem.add(ACTION_LIST_DELETE);
-        listItem.addSeparator();
-        listItem.add(ACTION_LIST_ITEM_NEW);
         mainItems.add(listItem);
 
-        MenuItem helpItem = new MenuItem(new Action(3, "&Help"d));
+        MenuItem itemItem = new MenuItem(new Action(3, "&Item"d));
+        itemItem.add(ACTION_ITEM_NEW);
+        itemItem.add(ACTION_ITEM_LIST);
+        mainItems.add(itemItem);
+
+        MenuItem helpItem = new MenuItem(new Action(4, "&Help"d));
         helpItem.add(ACTION_HELP_ABOUT);
         mainItems.add(helpItem);
 
@@ -197,7 +204,7 @@ class MultiCheckListFrame : AppFrame
         const bool haveTabs = _listTabs.tabCount > 0;
         ACTION_LIST_EDIT.state(ActionState(haveTabs, true, false));
         ACTION_LIST_DELETE.state(ActionState(haveTabs, true, false));
-        ACTION_LIST_ITEM_NEW.state(ActionState(haveTabs, true, false));
+        ACTION_ITEM_NEW.state(ActionState(haveTabs, true, false));
     }
 
     /// Create new list
@@ -239,6 +246,27 @@ class MultiCheckListFrame : AppFrame
                 CheckListTab clt = _listTabs.childById!CheckListTab(_listTabs.selectedTabId);
                 clt.createRow(dlg.data);
                 statusLine().setStatusText("Created new list item " ~ dlg.data);
+                enableMenuActions();
+                invalidate();
+            }
+        };
+        dlg.show();
+    }
+
+    /// Create multiple list items at once
+    private void createNewItemMultiple()
+    {
+        CreateMultipleItemsDialog dlg = new CreateMultipleItemsDialog(window);
+        dlg.dialogResult = delegate(Dialog d, const Action result)
+        {
+            if (result.id == ACTION_OK.id)
+            {
+                CheckListTab clt = _listTabs.childById!CheckListTab(_listTabs.selectedTabId);
+                foreach (s; dlg.items)
+                {
+                    clt.createRow(s);
+                }
+                statusLine().setStatusText("Created multiple items for list " ~ clt.name);
                 enableMenuActions();
                 invalidate();
             }
