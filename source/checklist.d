@@ -462,8 +462,11 @@ class Checklist
 }
 
 /// Checklist tab
-class CheckListTab : TableLayout
+class CheckListTab : ScrollWidget
 {
+    /// Table layout holding the contents
+    TableLayout _layout;
+    
     /// Checklist contained in the tab
     Checklist _list;
 
@@ -476,7 +479,6 @@ class CheckListTab : TableLayout
     public this(Checklist checklist)
     {
         _list = checklist;
-        colCount(4);
         buildLayout();
     }
     
@@ -535,6 +537,12 @@ class CheckListTab : TableLayout
     /// Build the table layout
     private void buildLayout()
     {
+        layoutWidth(FILL_PARENT);
+        layoutHeight(FILL_PARENT);
+
+        _layout = new TableLayout();
+        _layout.colCount(4);
+        contentWidget(_layout);
         foreach (i, cr ; _list.rows)
         {
             addRowControls(i, cr);
@@ -552,14 +560,14 @@ class CheckListTab : TableLayout
             b.checkChange = &(new CheckDelegate(_list, i, j).handleCheck);
             hl.addChild(b);
         }
-        addChild(hl);
-        addChild(new TextWidget("text_" ~ i.to!string, row.text));
+        _layout.addChild(hl);
+        _layout.addChild(new TextWidget("text_" ~ i.to!string, row.text));
         Button ed = new Button(new Action(i.to!int, "Edit"d));
         ed.click = &onEdit;
-        addChild(ed);
+        _layout.addChild(ed);
         Button del = new Button(new Action(-(i.to!int), "Delete"d));
         del.click = &onDelete;
-        addChild(del);
+        _layout.addChild(del);
     }
 
     bool onEdit(Widget w)

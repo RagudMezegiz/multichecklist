@@ -10,7 +10,7 @@ import dlangui.dialogs.dialog;
 
 /// Program version information
 enum versionInfo = "
-         Multi-Check-List version 0.1
+        Multi-Check-List version 0.1.1
 https://github.com/RagudMezegiz/multichecklist
 
        Copyright (C) 2020 David Terhune
@@ -171,6 +171,8 @@ class MultiCheckListFrame : AppFrame
     override Widget createBody()
     {
         _listTabs = new TabWidget();
+        _listTabs.layoutWidth(FILL_PARENT);
+        _listTabs.layoutHeight(FILL_PARENT);
 
         // Load existing lists, if any
         Checklist[] checklists = ChecklistData.load();
