@@ -35,6 +35,7 @@ class ChecklistData
     private enum updateListDataFlags = "UPDATE list_data SET flags = :flags WHERE id == :id";
     private enum removeListData = "DELETE FROM list_data WHERE id == :id";
     private enum removeListAllData = "DELETE FROM list_data WHERE list_id == :id";
+    private enum clearListData = "UPDATE list_data SET flags = 0 WHERE list_id == :id";
 
     // Database connection
     private static Database db;
@@ -170,6 +171,17 @@ class ChecklistData
     {
         db.execute(removeListData, row_id);
         Log.d("Removed data: ", row_id);
+    }
+
+    /++
+    Clear all the flags for an entire list.
+
+    Params: list_id = list identifier
+    +/
+    public static void clearData(int list_id)
+    {
+        db.execute(clearListData, list_id);
+        Log.d("Cleared data: ", list_id);
     }
 
     // Create the initial tables if they're not there.
@@ -400,6 +412,12 @@ class Checklist
         ChecklistData.removeList(_id);
     }
 
+    /// Clear this list's checks.
+    public void clear()
+    {
+        ChecklistData.clearData(_id);
+    }
+
     /++
     Add a row to the list.
 
@@ -526,12 +544,24 @@ class CheckListTab : ScrollWidget
         addRowControls(_list.rows.length - 1, _list.rows[$-1]);
     }
 
-    /++
-    Remove this tab's data.
-    +/
+    /// Remove this tab's data.
     public void remove()
     {
         _list.remove();
+    }
+
+    /// Clear this tab's checkboxes.
+    public void clear()
+    {
+        _list.clear();
+        foreach (i; 0 .. _list.rows.length)
+        {
+            foreach (j; 0 .. _list.boxes)
+            {
+                CheckBox b = childById!CheckBox("check_" ~ i.to!string ~ "_" ~ j.to!string);
+                b.checked(false);
+            }
+        }
     }
 
     /// Build the table layout

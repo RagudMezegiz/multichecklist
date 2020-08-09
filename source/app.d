@@ -10,7 +10,7 @@ import dlangui.dialogs.dialog;
 
 /// Program version information
 enum versionInfo = "
-        Multi-Check-List version 0.2.0
+        Multi-Check-List version 0.3.0
 https://github.com/RagudMezegiz/multichecklist
 
        Copyright (C) 2020 David Terhune
@@ -60,6 +60,7 @@ enum AppActions : int
     ListNew,
     ListEdit,
     ListDelete,
+    ListClear,
     ItemNew,
     ItemList,
     HelpAbout
@@ -71,8 +72,9 @@ class MultiCheckListFrame : AppFrame
     // Menu actions
     private Action ACTION_FILE_EXIT = new Action(AppActions.FileExit, "E&xit"d);
     private Action ACTION_LIST_NEW = new Action(AppActions.ListNew, "New &List"d);
-    private Action ACTION_LIST_EDIT = new Action(AppActions.ListEdit, "Edit List"d);
-    private Action ACTION_LIST_DELETE = new Action(AppActions.ListDelete, "Delete List"d);
+    private Action ACTION_LIST_EDIT = new Action(AppActions.ListEdit, "&Edit List"d);
+    private Action ACTION_LIST_DELETE = new Action(AppActions.ListDelete, "&Delete List"d);
+    private Action ACTION_LIST_CLEAR = new Action(AppActions.ListClear, "&Clear List"d);
     private Action ACTION_ITEM_NEW = new Action(AppActions.ItemNew, "New &Item"d);
     private Action ACTION_ITEM_LIST = new Action(AppActions.ItemList, "&Multiple New Items"d);
     private Action ACTION_HELP_ABOUT = new Action(AppActions.HelpAbout, "&About"d);
@@ -111,6 +113,10 @@ class MultiCheckListFrame : AppFrame
 
             case AppActions.ListDelete:
                 deleteList();
+                return true;
+
+            case AppActions.ListClear:
+                clearList();
                 return true;
 
             case AppActions.ItemNew:
@@ -152,6 +158,8 @@ class MultiCheckListFrame : AppFrame
         listItem.add(ACTION_LIST_NEW);
         listItem.add(ACTION_LIST_EDIT);
         listItem.add(ACTION_LIST_DELETE);
+        listItem.addSeparator();
+        listItem.add(ACTION_LIST_CLEAR);
         mainItems.add(listItem);
 
         MenuItem itemItem = new MenuItem(new Action(3, "&Item"d));
@@ -314,6 +322,25 @@ class MultiCheckListFrame : AppFrame
                     {
                         _listTabs.selectTab(0);
                     }
+                    enableMenuActions();
+                    invalidate();
+                }
+                return true;
+            });
+    }
+
+    /// Clear list
+    private void clearList()
+    {
+        CheckListTab clt = _listTabs.childById!CheckListTab(_listTabs.selectedTabId);
+
+        window.showMessageBox(UIString.fromRaw("Clear "d ~ clt.name ~ "?"d),
+            UIString.fromRaw("Are you sure?"d),
+            [ACTION_YES, ACTION_NO], 1, delegate(const Action a)
+            {
+                if (a.id == StandardAction.Yes)
+                {
+                    clt.clear();
                     enableMenuActions();
                     invalidate();
                 }
