@@ -25,3 +25,9 @@ dub.selections.json
 
 # Code coverage
 *.lst
+
+# Log files
+*.log
+
+# Runtime database file
+checklist.db
